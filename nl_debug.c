@@ -846,8 +846,11 @@ int nl_debug(void *buf, int len)
                 ifm->ifi_family, ifm->ifi_flags, ifm->ifi_change);
 
             for (struct rtattr *rta = IFLA_RTA(ifm); RTA_OK(rta, rta_len); rta = RTA_NEXT(rta, rta_len)) {
-                outf(" %s", ifla_rta_type_str[rta->rta_type]);
-                switch (rta->rta_type) {
+            	if((rta->rta_type & NLA_TYPE_MASK) < sizeof(ifla_rta_type_str)/32)
+                    outf(" %s", ifla_rta_type_str[rta->rta_type & NLA_TYPE_MASK]);
+                else
+                    outf("%d", rta->rta_type & NLA_TYPE_MASK);
+                switch (rta->rta_type & NLA_TYPE_MASK) {
                 // not implemented
                 case IFLA_UNSPEC:
                 case IFLA_AF_SPEC:
@@ -1039,8 +1042,11 @@ int nl_debug(void *buf, int len)
                 ifm->ifa_prefixlen, ifm->ifa_flags, ifm->ifa_scope);
 
             for (struct rtattr *rta = IFA_RTA(ifm); RTA_OK(rta, rta_len); rta = RTA_NEXT(rta, rta_len)) {
-                outf(" %s", ifa_rta_type_str[rta->rta_type]);
-                switch (rta->rta_type) {
+            	if((rta->rta_type & NLA_TYPE_MASK) < sizeof(ifa_rta_type_str)/16)
+                    outf(" %s", ifa_rta_type_str[rta->rta_type & NLA_TYPE_MASK]);
+                else
+                    outf("%d", rta->rta_type & NLA_TYPE_MASK);
+                switch (rta->rta_type & NLA_TYPE_MASK) {
                 // address
                 case IFA_ADDRESS:
                 case IFA_LOCAL:
@@ -1076,7 +1082,7 @@ int nl_debug(void *buf, int len)
                     break;
                 }
                 default:
-                    //outf("IFA_0x%04x\n", rta->rta_type);
+                    //outf("IFA_0x%04x\n", rta->rta_type & NLA_TYPE_MASK);
                     dump(RTA_DATA(rta), RTA_PAYLOAD(rta), 0, "\t");
                     break;
                 }
@@ -1104,8 +1110,11 @@ int nl_debug(void *buf, int len)
                 ifm->rtm_table, ifm->rtm_protocol, ifm->rtm_scope);
 
             for (struct rtattr *rta = RTM_RTA(ifm); RTA_OK(rta, rta_len); rta = RTA_NEXT(rta, rta_len)) {
-                outf(" %s", rtattr_type_str[rta->rta_type]);
-                switch (rta->rta_type) {
+                if((rta->rta_type & NLA_TYPE_MASK) < sizeof(rtattr_type_str)/16)
+                    outf(" %s", rtattr_type_str[rta->rta_type & NLA_TYPE_MASK]);
+                else
+                    outf("%d", rta->rta_type & NLA_TYPE_MASK);
+                switch (rta->rta_type & NLA_TYPE_MASK) {
                 // not implemented
                 case RTA_UNSPEC:
                 case RTA_CACHEINFO:
